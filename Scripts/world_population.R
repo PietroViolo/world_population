@@ -33,11 +33,7 @@ pop$world_pop <- sum(pop$PopTotal)
 pop <- pop %>% mutate(Weight = PopTotal/world_pop)
 
 
-
-pop %>% mutate(cumsum(Weight))
 # Assign color to each continent
-
-pop %>% pull(continent) %>% unique()
 
 
 pop <- pop %>% mutate(Color = case_when(continent == "North America" ~ "#1e6aa6",
@@ -48,6 +44,9 @@ pop <- pop %>% mutate(Color = case_when(continent == "North America" ~ "#1e6aa6"
                                         continent == "Asia" ~ "#e8f6f7"
                                         ),
                       Total = "Total")
+
+pop <- pop %>% mutate(PopTotal = round(PopTotal/1000, digits = 2),
+                      ISO3 = paste(ISO3, PopTotal))
 # Format table to correspond to voronoitreemap package
 pop <- pop %>% dplyr::select(Total, continent, Location, Color, Weight, ISO3) %>% 
   rename(h1 = Total,
@@ -62,23 +61,20 @@ pop <- pop %>% dplyr::select(Total, continent, Location, Color, Weight, ISO3) %>
 voronoi <- vt_export_json(vt_input_from_df(pop))
 voronoi_graph <- vt_d3(voronoi, color_border = "#172a3a", size_border = "2px", 
                  legend = TRUE,
-                 width = 3000,
-                 height = 3000)
-
-
+                 width = 2000,
+                 height = 2000)
 
 
 # Save graph
 
 library(htmlwidgets)
 
-saveWidget(voronoi,"voronoi.html",selfcontained = TRUE)
+saveWidget(voronoi_graph,"voronoi_graph.html",selfcontained = TRUE)
 
 library(webshot2)
 
-webshot("voronoi.html","voronoi_png.png",delay = 1,selector = "#htmlwidget_container",
-        zoom = 10)
+webshot2::webshot("voronoi_graph.html","voronoi_png_2.png",delay = 2,selector = "#htmlwidget_container",
+                  zoom = 5, vwidth = 2000)
 
-?vt_d3
-
+?webshot
 
