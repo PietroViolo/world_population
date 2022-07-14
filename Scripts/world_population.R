@@ -26,8 +26,6 @@ pop <- merge(pop,ccodes()[,c("ISO3","continent")],by.x=,by.y=)
 
 # Calculate weights
 
-pop <- pop %>% arrange(desc(PopTotal)) %>% slice(n = 1:100)
-
 pop$world_pop <- sum(pop$PopTotal)
 
 pop <- pop %>% mutate(Weight = PopTotal/world_pop)
@@ -46,7 +44,10 @@ pop <- pop %>% mutate(Color = case_when(continent == "North America" ~ "#1e6aa6"
                       Total = "Total")
 
 pop <- pop %>% mutate(PopTotal = round(PopTotal/1000, digits = 2),
-                      ISO3 = paste(ISO3, PopTotal))
+                      ISO3 = paste(ISO3, PopTotal),
+                      ISO3 = ifelse(PopTotal > 8.6, ISO3, ""))
+
+
 # Format table to correspond to voronoitreemap package
 pop <- pop %>% dplyr::select(Total, continent, Location, Color, Weight, ISO3) %>% 
   rename(h1 = Total,
@@ -75,6 +76,3 @@ library(webshot2)
 
 webshot2::webshot("voronoi_graph.html","voronoi_png_2.png",delay = 2,selector = "#htmlwidget_container",
                   zoom = 5, vwidth = 2000)
-
-?webshot
-
